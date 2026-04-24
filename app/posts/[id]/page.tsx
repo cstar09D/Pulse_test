@@ -209,7 +209,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
   // 마지막 수치 가져오기 (항상 실제 데이터의 마지막 기준)
   const latestMetrics = post.metrics.length > 0 
     ? post.metrics[post.metrics.length - 1] 
-    : { views: post.views, likes: post.likes, comments: post.comments };
+    : { views: post.views, likes: post.likes, comments: post.comments, recorded_at: null };
 
   return (
     <main className="max-w-[1400px] mx-auto px-4 py-12 md:py-16">
@@ -385,7 +385,7 @@ export default function PostDetailPage({ params }: { params: Promise<{ id: strin
               {latestMetrics.recorded_at && (
                 <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  Last updated: {new Date(latestMetrics.recorded_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}, {new Date(latestMetrics.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  Last updated: {new Date(latestMetrics.recorded_at as string).toLocaleDateString([], { month: 'short', day: 'numeric' })}, {new Date(latestMetrics.recorded_at as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
               )}
             </div>
