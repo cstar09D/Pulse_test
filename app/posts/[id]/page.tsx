@@ -54,7 +54,7 @@ const formatNumber = (num: number) => {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
-    if (data.isFuture || data.views === null) return null;
+    if ((data as any).isFuture || data.views === null) return null;
     return (
       <div className="bg-[#1e212b]/95 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl min-w-[180px]">
         <p className="text-gray-400 text-[11px] font-black uppercase tracking-widest mb-3 pb-2 border-b border-white/5">{label}</p>
@@ -91,14 +91,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const CustomCursor = (props: any) => {
   const { points, payload, height } = props;
-  if (!payload || !payload.length || payload[0].isFuture || payload[0].views === null) return null;
+  if (!payload || !payload.length || (payload[0] as any).isFuture || payload[0].views === null) return null;
   const { x, y } = points[0];
   return <line x1={x} y1={y} x2={x} y2={y + height} stroke="rgba(255,255,255,0.1)" strokeWidth={1} />;
 };
 
 const CustomActiveDot = (props: any) => {
   const { cx, cy, stroke, payload, value } = props;
-  if (!payload || payload.isFuture || value === null) return null;
+  if (!payload || (payload as any).isFuture || value === null) return null;
   return <circle cx={cx} cy={cy} r={6} fill={stroke} stroke="#fff" strokeWidth={2} />;
 };
 
@@ -1128,7 +1128,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                             minTickGap={timeRange === 'day' ? 5 : 80}
                             interval={0}
                             ticks={timeRange === 'day' 
-                              ? chartData.filter(d => d.isMajorTick).map(d => d.time)
+                              ? (chartData as any[]).filter(d => d.isMajorTick).map(d => d.time)
                               : (timeRange === 'week' && dayViewMode === 'full' && chartData.length > 1 && chartData[0] 
                                 ? [chartData[0].time, weekBoundaryPoint, chartData[chartData.length - 1].time].filter(Boolean) as string[] 
                                 : (timeRange === 'month' && chartData.length > 1 && chartData[0]
@@ -1259,7 +1259,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                               minTickGap={timeRange === 'day' ? 5 : 80}
                               interval={0}
                               ticks={timeRange === 'day' 
-                                ? chartData.filter(d => d.isMajorTick).map(d => d.time)
+                                ? (chartData as any[]).filter(d => d.isMajorTick).map(d => d.time)
                                 : (timeRange === 'week' && dayViewMode === 'full' && chartData.length > 1 && chartData[0] 
                                   ? [chartData[0].time, weekBoundaryPoint, chartData[chartData.length - 1].time].filter(Boolean) as string[] 
                                   : (timeRange === 'month' && chartData.length > 1 && chartData[0]
@@ -1358,7 +1358,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                                 pointerEvents="none" 
                                 interval={0}
                                 ticks={timeRange === 'day' 
-                                  ? chartData.filter(d => d.isMajorTick).map(d => d.time)
+                                  ? (chartData as any[]).filter(d => d.isMajorTick).map(d => d.time)
                                   : (timeRange === 'week' && dayViewMode === 'full' && chartData.length > 1 && chartData[0] 
                                     ? [chartData[0].time, weekBoundaryPoint, chartData[chartData.length - 1].time].filter(Boolean) as string[] 
                                     : (timeRange === 'month' && chartData.length > 1 && chartData[0]
@@ -1456,7 +1456,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                                 pointerEvents="none" 
                                 interval={0}
                                 ticks={timeRange === 'day' 
-                                  ? chartData.filter(d => d.isMajorTick).map(d => d.time)
+                                  ? (chartData as any[]).filter(d => d.isMajorTick).map(d => d.time)
                                   : (timeRange === 'week' && dayViewMode === 'full' && chartData.length > 1 && chartData[0] 
                                     ? [chartData[0].time, weekBoundaryPoint, chartData[chartData.length - 1].time].filter(Boolean) as string[] 
                                     : (timeRange === 'month' && chartData.length > 1 && chartData[0]
