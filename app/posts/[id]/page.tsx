@@ -649,7 +649,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
 
    const weekBoundaryPoint = useMemo(() => {
     if (timeRange !== 'week' || !chartData || chartData.length === 0) return null;
-    return chartData.find(d => d.isWeekBoundary)?.time || null;
+    return chartData.find(d => (d as any).isWeekBoundary)?.time || null;
   }, [chartData, timeRange]);
 
   const midMonthPoint = useMemo(() => {
