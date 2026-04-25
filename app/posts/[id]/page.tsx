@@ -1083,7 +1083,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                   {/* Fixed Left Y-Axis Column (Views) */}
                   <div className="w-14 sm:w-20 flex-shrink-0 z-50 bg-surface mr-[-1px] border-r border-white/5 overflow-hidden">
                     <ResponsiveContainer width="100%" height="100%" className="outline-none">
-                      <ComposedChart data={chartData} margin={{ top: 10, right: 0, left: 10, bottom: 40 }} className="outline-none">
+                      <ComposedChart data={chartData as any[]} margin={{ top: 10, right: 0, left: 10, bottom: 40 }} className="outline-none">
                         <YAxis 
                           yAxisId="left" 
                           stroke="#4f46e5" 
@@ -1109,7 +1109,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                       minWidth: '100%'
                     }}>
                       <ResponsiveContainer width="100%" height="100%" key={`combined-${timeRange}`} className="outline-none">
-                        <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 40 }} className="outline-none">
+                        <ComposedChart data={chartData as any[]} margin={{ top: 10, right: 10, left: 10, bottom: 40 }} className="outline-none">
                           <defs>
                             <linearGradient id="colorViewsCombined" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
@@ -1176,7 +1176,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                   {/* Fixed Right Y-Axis Column (Likes/Comments) */}
                   <div className="w-14 sm:w-20 flex-shrink-0 z-50 bg-surface ml-[-1px] border-l border-white/5 overflow-hidden">
                     <ResponsiveContainer width="100%" height="100%" className="outline-none">
-                      <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 40 }} className="outline-none">
+                      <ComposedChart data={chartData as any[]} margin={{ top: 10, right: 10, left: 0, bottom: 40 }} className="outline-none">
                         <YAxis 
                           yAxisId="right" 
                           orientation="right"
@@ -1214,7 +1214,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                     {/* Fixed Y-Axis Column */}
                     <div className="w-14 sm:w-20 flex-shrink-0 z-50 bg-surface mr-[-1px] border-r border-white/5 overflow-hidden">
                       <ResponsiveContainer width="100%" height="100%" className="outline-none">
-                        <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 10, bottom: 40 }} className="outline-none">
+                        <AreaChart data={chartData as any[]} margin={{ top: 10, right: 0, left: 10, bottom: 40 }} className="outline-none">
                           <YAxis 
                             stroke="#6b7280" 
                             fontSize={10} 
@@ -1241,7 +1241,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                         </div>
                       )}
                         <ResponsiveContainer width="100%" height="100%" key={`views-${timeRange}`} className="outline-none">
-                          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 40 }} className="outline-none">
+                          <AreaChart data={chartData as any[]} margin={{ top: 10, right: 10, left: 10, bottom: 40 }} className="outline-none">
                             <defs>
                               <linearGradient id="colorViewsSplit" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
@@ -1320,7 +1320,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                       {/* Fixed Y-Axis Column */}
                       <div className="w-12 sm:w-16 flex-shrink-0 z-50 bg-surface mr-[-1px] border-r border-white/5 overflow-hidden">
                         <ResponsiveContainer width="100%" height="100%" className="outline-none">
-                          <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 10, bottom: 40 }} className="outline-none">
+                          <AreaChart data={chartData as any[]} margin={{ top: 10, right: 0, left: 10, bottom: 40 }} className="outline-none">
                             <YAxis 
                               stroke="#6b7280" 
                               fontSize={10} 
@@ -1341,7 +1341,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                           minWidth: '100%'
                         }}>
                           <ResponsiveContainer width="100%" height="100%" key={`likes-${timeRange}`} className="outline-none">
-                            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 40 }} className="outline-none">
+                            <AreaChart data={chartData as any[]} margin={{ top: 10, right: 10, left: 10, bottom: 40 }} className="outline-none">
                               <defs>
                                 <linearGradient id="colorLikesSplit" x1="0" y1="0" x2="0" y2="1">
                                   <stop offset="5%" stopColor="#ec4899" stopOpacity={0.3}/>
@@ -1418,7 +1418,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                       {/* Fixed Y-Axis Column */}
                       <div className="w-12 sm:w-16 flex-shrink-0 z-50 bg-surface mr-[-1px] border-r border-white/5 overflow-hidden">
                         <ResponsiveContainer width="100%" height="100%" className="outline-none">
-                          <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 10, bottom: 40 }} className="outline-none">
+                          <AreaChart data={chartData as any[]} margin={{ top: 10, right: 0, left: 10, bottom: 40 }} className="outline-none">
                             <YAxis 
                               stroke="#6b7280" 
                               fontSize={10} 
@@ -1439,7 +1439,7 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                           minWidth: '100%'
                         }}>
                           <ResponsiveContainer width="100%" height="100%" key={`comments-${timeRange}`} className="outline-none">
-                            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 40 }} className="outline-none">
+                            <AreaChart data={chartData as any[]} margin={{ top: 10, right: 10, left: 10, bottom: 40 }} className="outline-none">
                               <defs>
                                 <linearGradient id="colorCommentsSplit" x1="0" y1="0" x2="0" y2="1">
                                   <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3}/>
