@@ -1290,7 +1290,6 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                                 stroke="#ffffff" 
                                 strokeWidth={2}
                                 strokeDasharray="5 5"
-                                isFront={true}
                                 label={{ value: '이번 주 시작', position: 'insideTopRight', fill: '#ffffff', fontSize: 12, dy: 10, fontWeight: 'bold' }}
                               />
                             )}
@@ -1389,7 +1388,6 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                                   stroke="#ffffff" 
                                   strokeWidth={2}
                                   strokeDasharray="5 5"
-                                  isFront={true}
                                   label={{ value: '이번 주 시작', position: 'insideTopRight', fill: '#ffffff', fontSize: 12, dy: 10, fontWeight: 'bold' }}
                                 />
                               )}
@@ -1486,7 +1484,6 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
                                   stroke="#ffffff" 
                                   strokeWidth={2}
                                   strokeDasharray="5 5"
-                                  isFront={true}
                                   label={{ value: '이번 주 시작', position: 'insideTopRight', fill: '#ffffff', fontSize: 12, dy: 10, fontWeight: 'bold' }}
                                 />
                               )}
