@@ -18,6 +18,7 @@ import {
   Target,
   Activity,
   History,
+  Minus,
   Trash2,
   AlertTriangle,
   X,
@@ -740,6 +741,129 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
   };
 
 
+  // Helper for trend data: Use actual metrics from the SELECTED date
+  const getStatsTrend = (key: string) => {
+    if (!postData?.metrics || !selectedDate) return [];
+    
+    const targetDate = new Date(selectedDate);
+    const startOfTarget = new Date(targetDate);
+    startOfTarget.setHours(0, 0, 0, 0);
+    
+    const endOfTarget = new Date(targetDate);
+    endOfTarget.setHours(23, 59, 59, 999);
+
+    // 1. Get baseline (latest metric before the selected date start)
+    const baselineMetrics = postData.metrics
+      .filter((m: any) => new Date(m.recorded_at) < startOfTarget)
+      .sort((a: any, b: any) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime());
+    const baselineValue = baselineMetrics.length > 0 ? baselineMetrics[0][key] : 0;
+
+    // 2. Get all metrics during the selected date
+    const dayMetrics = postData.metrics
+      .filter((m: any) => {
+        const d = new Date(m.recorded_at);
+        return d >= startOfTarget && d <= endOfTarget;
+      })
+      .sort((a: any, b: any) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
+
+    // 3. Map to trend data starting from baseline
+    const trendData = [
+      { value: baselineValue },
+      ...dayMetrics.map((m: any) => ({ value: m[key] }))
+    ];
+
+    // If no data for the day, at least show a flat line from baseline
+    if (trendData.length === 1) trendData.push({ value: baselineValue });
+    
+    return trendData;
+  };
+
+  // Helper for growth: Compare latest of selected date vs last of previous day
+  const getGrowth = (key: string) => {
+    if (!postData?.metrics || !selectedDate) return 0;
+    
+    const targetDate = new Date(selectedDate);
+    const startOfTarget = new Date(targetDate);
+    startOfTarget.setHours(0, 0, 0, 0);
+    
+    const endOfTarget = new Date(targetDate);
+    endOfTarget.setHours(23, 59, 59, 999);
+
+    // Latest metric for selected date
+    const targetMetrics = postData.metrics
+      .filter((m: any) => {
+        const d = new Date(m.recorded_at);
+        return d >= startOfTarget && d <= endOfTarget;
+      })
+      .sort((a: any, b: any) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime());
+
+    if (targetMetrics.length === 0) return 0;
+    const latestValue = targetMetrics[0][key];
+
+    // Last metric of previous day
+    const prevDayMetrics = postData.metrics
+      .filter((m: any) => new Date(m.recorded_at) < startOfTarget)
+      .sort((a: any, b: any) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime());
+
+    const previousValue = prevDayMetrics.length > 0 ? prevDayMetrics[0][key] : 0;
+    
+    return latestValue - previousValue;
+  };
+
+  const MetricCard = ({ title, value, icon: Icon, color, trendData, growth }: any) => {
+    const isPositive = growth > 0;
+    const isNegative = growth < 0;
+    const isNeutral = growth === 0;
+
+    const StatusIcon = isPositive ? TrendingUp : isNegative ? TrendingDown : Minus;
+    const statusColor = isPositive ? 'text-green-400' : isNegative ? 'text-red-400' : 'text-gray-400';
+
+    return (
+      <div className="bg-surface border border-surface-border p-3 sm:p-6 rounded-2xl sm:rounded-[2.5rem] shadow-2xl relative overflow-hidden group hover:border-accent/30 transition-all duration-500 h-[120px] sm:h-[180px]">
+        <div className="relative z-10 flex flex-col h-full">
+          <div className="flex items-start justify-between mb-1 sm:mb-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-gray-500 font-black text-[8px] sm:text-[10px] uppercase tracking-widest">
+              <Icon className="w-3 h-3 sm:w-4 h-4 text-gray-500 group-hover:text-accent transition-colors" />
+              {title}
+            </div>
+            <div className={`flex items-center gap-0.5 sm:gap-1 text-[8px] sm:text-[11px] font-black ${statusColor}`}>
+              <StatusIcon className="w-2.5 h-2.5 sm:w-3 h-3" />
+              {growth > 0 ? '+' : ''}{formatNumber(growth)}
+            </div>
+          </div>
+          
+          <div className="text-xl sm:text-4xl font-black text-white tracking-tight mb-2">
+            {formatNumber(value)}
+          </div>
+          
+          <div className="mt-auto h-8 sm:h-16 w-full opacity-40 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={trendData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id={`grad-${title}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+                    <stop offset="100%" stopColor={color} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <YAxis hide domain={['dataMin', 'dataMax']} />
+                <Area 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke={color} 
+                  strokeWidth={2} 
+                  fill={`url(#grad-${title})`}
+                  isAnimationActive={false}
+                  dot={false}
+                  activeDot={false}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className={`absolute -bottom-8 -right-8 w-24 h-24 blur-3xl opacity-5 group-hover:opacity-15 transition-opacity rounded-full`} style={{ backgroundColor: color }} />
+      </div>
+    );
+  };
 
   const confirmDelete = () => {
     // Implement delete logic here
@@ -826,26 +950,32 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
             </div>
           </div>
 
-          {/* Quick Stats Grid - Updated for Mobile Row */}
+          {/* Quick Stats Grid - Updated with Sparklines and Growth */}
           <div className="grid grid-cols-3 gap-2 sm:gap-8">
-            <div className="bg-white/5 p-1.5 sm:p-6 rounded-lg sm:rounded-3xl border border-white/5 flex flex-col items-center lg:items-start gap-1 sm:gap-2 min-w-0">
-              <div className="flex items-center gap-1 sm:gap-2 text-gray-400 text-[8px] sm:text-sm font-medium whitespace-nowrap">
-                <Eye className="w-2.5 h-2.5 sm:w-4 h-4" /> Views
-              </div>
-              <div className="text-sm sm:text-3xl font-bold text-white truncate">{formatNumber(latestMetrics.views)}</div>
-            </div>
-            <div className="bg-white/5 p-1.5 sm:p-6 rounded-lg sm:rounded-3xl border border-white/5 flex flex-col items-center lg:items-start gap-1 sm:gap-2 min-w-0">
-              <div className="flex items-center gap-1 sm:gap-2 text-gray-400 text-[8px] sm:text-sm font-medium whitespace-nowrap">
-                <Heart className="w-2.5 h-2.5 sm:w-4 h-4" /> Likes
-              </div>
-              <div className="text-sm sm:text-3xl font-bold text-white truncate">{formatNumber(latestMetrics.likes)}</div>
-            </div>
-            <div className="bg-white/5 p-1.5 sm:p-6 rounded-lg sm:rounded-3xl border border-white/5 flex flex-col items-center lg:items-start gap-1 sm:gap-2 min-w-0">
-              <div className="flex items-center gap-1 sm:gap-2 text-gray-400 text-[8px] sm:text-sm font-medium whitespace-nowrap">
-                <MessageCircle className="w-2.5 h-2.5 sm:w-4 h-4" /> Comments
-              </div>
-              <div className="text-sm sm:text-3xl font-bold text-white truncate">{formatNumber(latestMetrics.comments)}</div>
-            </div>
+            <MetricCard 
+              title="Views" 
+              value={latestMetrics.views} 
+              icon={Eye} 
+              color="#6366f1" 
+              trendData={getStatsTrend('views')}
+              growth={getGrowth('views')}
+            />
+            <MetricCard 
+              title="Likes" 
+              value={latestMetrics.likes} 
+              icon={Heart} 
+              color="#ef4444" 
+              trendData={getStatsTrend('likes')}
+              growth={getGrowth('likes')}
+            />
+            <MetricCard 
+              title="Comments" 
+              value={latestMetrics.comments} 
+              icon={MessageCircle} 
+              color="#4ade80" 
+              trendData={getStatsTrend('comments')}
+              growth={getGrowth('comments')}
+            />
           </div>
         </div>
       </section>
@@ -1036,49 +1166,51 @@ export default function PostDetail({ params }: { params: Promise<{ id: string }>
 
           {/* Main Charts Area */}
           <div className="flex-1 w-full space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
-              <div className="flex items-center gap-4 sm:gap-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-3">
-                  <BarChart3 className="w-6 h-6 sm:w-7 h-7 text-accent" />
-                  Performance Trends
-                </h2>
-              </div>
-              {latestMetrics.recorded_at && (
-                <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  Last updated: {new Date(latestMetrics.recorded_at as string).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}, {new Date(latestMetrics.recorded_at as string).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
-                </div>
-              )}
-            </div>
-
             {chartLayout === "combined" ? (
               <div className="bg-surface border border-surface-border rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 md:p-10 shadow-xl overflow-hidden w-full">
-                {/* Fixed Legend */}
-                <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-[#4f46e5]" />
-                      <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Views</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-[#ec4899]" />
-                      <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Likes</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-[#14b8a6]" />
-                      <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Comments</span>
-                    </div>
+                {/* Integrated Header */}
+                <div className="flex flex-col gap-6 mb-10">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20">
+                        <BarChart3 className="w-6 h-6 text-accent" />
+                      </div>
+                      Performance Trends
+                    </h2>
+                    {latestMetrics.recorded_at && (
+                      <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                        Last updated: {new Date(latestMetrics.recorded_at as string).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()} {new Date(latestMetrics.recorded_at as string).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                      </div>
+                    )}
                   </div>
 
+                  <div className="flex items-center justify-between px-2">
+                    <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-[#4f46e5] shadow-[0_0_8px_rgba(79,70,229,0.5)]" />
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Views</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-[#ec4899] shadow-[0_0_8px_rgba(236,72,153,0.5)]" />
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Likes</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-[#14b8a6] shadow-[0_0_8px_rgba(20,184,166,0.5)]" />
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Comments</span>
+                      </div>
+                    </div>
+                    
+                    {(chartData.length > 15 || (dayViewMode === 'hourly' && timeRange === 'day') || timeRange === 'month') && (
+                      <div className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase tracking-widest opacity-60">
+                        <MoveHorizontal className="w-3.5 h-3.5" />
+                        <span>Scroll to explore</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="relative">
-                  {(chartData.length > 15 || (dayViewMode === 'hourly' && timeRange === 'day') || timeRange === 'month') && (
-                    <div className="absolute -top-10 right-0 z-30 flex items-center gap-2 text-[10px] font-black text-accent/60 uppercase tracking-widest animate-pulse bg-accent/5 px-3 py-1.5 rounded-full border border-accent/10 pointer-events-none">
-                      <MoveHorizontal className="w-3 h-3" />
-                      <span>Scroll to explore</span>
-                    </div>
-                  )}
                   <div className="flex h-[500px] w-full overflow-hidden">
                   {/* Fixed Left Y-Axis Column (Views) */}
                   <div className="w-14 sm:w-20 flex-shrink-0 z-50 bg-surface mr-[-1px] border-r border-white/5 overflow-hidden">
