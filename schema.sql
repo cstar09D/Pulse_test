@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS posts (
   url TEXT NOT NULL,
   title TEXT,
   thumbnail_url TEXT,
+  author TEXT,
   views BIGINT DEFAULT 0,
   likes BIGINT DEFAULT 0,
   comments BIGINT DEFAULT 0,

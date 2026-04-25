@@ -22,6 +22,7 @@ export async function POST(req: Request) {
     let platform = '';
     let title = 'Unknown Title';
     let thumbnail_url = 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=600&h=400&fit=crop';
+    let author = 'Unknown Author';
     let views = '0';
     let likes = '0';
     let comments = '0';
@@ -46,6 +47,7 @@ export async function POST(req: Request) {
             const stats = ytData.items[0].statistics;
             title = snippet.title;
             thumbnail_url = snippet.thumbnails.high?.url || snippet.thumbnails.default?.url;
+            author = snippet.channelTitle;
             views = stats.viewCount || '0';
             likes = stats.likeCount || '0';
             comments = stats.commentCount || '0';
@@ -63,7 +65,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unsupported URL platform.' }, { status: 400 });
     }
 
-    const payload = { platform, url, title, thumbnail_url, views, likes, comments };
+    const payload = { platform, url, title, thumbnail_url, author, views, likes, comments };
 
     if (supabase) {
       const { data, error } = await supabase

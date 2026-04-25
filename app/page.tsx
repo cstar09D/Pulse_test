@@ -326,10 +326,16 @@ export default function Dashboard() {
                 </div>
 
                 <div className="p-6">
-                  <div className="text-sm font-bold text-accent mb-2 uppercase tracking-wider">
+                  <div className="text-sm font-bold text-accent mb-1 uppercase tracking-wider">
                     {post.platform === 'youtube' 
                       ? (post.url.includes('/shorts/') ? 'YouTube Shorts' : 'YouTube') 
                       : 'Instagram'}
+                  </div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-5 h-5 rounded-md bg-accent/10 flex items-center justify-center text-accent text-[8px] font-black border border-accent/20">
+                      {post.author?.[0] || '?'}
+                    </div>
+                    <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest truncate">{post.author || 'Unknown Author'}</span>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-100 leading-snug line-clamp-2 mb-6 group-hover:text-accent-light transition-colors">
                     {post.title}
